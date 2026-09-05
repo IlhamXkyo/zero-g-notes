@@ -1,0 +1,890 @@
+/* ==========================================================================
+   Zero-G Notes: Human-Centric Editorial Minimalist Design System
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --card-opacity: 0.94;
+  --note-base-width: 250px;
+  --note-base-height: 165px;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: transparent !important;
+  user-select: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #1F2428;
+  -webkit-font-smoothing: antialiased;
+}
+
+#viewport {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; /* Click-through by default on background */
+}
+
+/* ==========================================================================
+   Themes: Warm Editorial Paper (Cute/Light) & Architectural Graphite (Space/Dark)
+   ========================================================================== */
+
+/* Light Theme: Editorial Paper */
+body.theme-cute {
+  --bg-canvas: #FCFAF7;
+  --bg-card: rgba(255, 255, 255, var(--card-opacity));
+  --border-card: rgba(0, 0, 0, 0.08);
+  --text-primary: #1F2428;
+  --text-secondary: #586069;
+  --text-muted: #8A949E;
+  --accent-color: #24292E;
+  --accent-soft: rgba(0, 0, 0, 0.04);
+  --accent-active: #E63946;
+  --hud-bg: rgba(255, 255, 255, 0.96);
+  --hud-border: rgba(0, 0, 0, 0.09);
+  --hud-shadow: 0 4px 18px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --card-shadow: 0 4px 14px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --settings-bg: rgba(255, 255, 255, 0.97);
+  --settings-border: rgba(0, 0, 0, 0.10);
+  --border-radius-main: 14px;
+  --border-radius-card: 12px;
+  --font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+}
+
+/* Dark Theme: Architectural Slate / Carbon */
+body.theme-space {
+  --bg-canvas: #121518;
+  --bg-card: rgba(22, 26, 30, var(--card-opacity));
+  --border-card: rgba(255, 255, 255, 0.10);
+  --text-primary: #F0F3F6;
+  --text-secondary: #9AA5B1;
+  --text-muted: #616E7C;
+  --accent-color: #388BFD;
+  --accent-soft: rgba(255, 255, 255, 0.06);
+  --accent-active: #E63946;
+  --hud-bg: rgba(18, 22, 26, 0.95);
+  --hud-border: rgba(255, 255, 255, 0.12);
+  --hud-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 1px 4px rgba(0, 0, 0, 0.3);
+  --card-shadow: 0 8px 22px rgba(0, 0, 0, 0.42), 0 1px 4px rgba(0, 0, 0, 0.25);
+  --settings-bg: rgba(20, 24, 28, 0.96);
+  --settings-border: rgba(255, 255, 255, 0.12);
+  --border-radius-main: 12px;
+  --border-radius-card: 10px;
+  --font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+}
+
+/* ==========================================================================
+   Floating HUD Toolbar & Drawer Container
+   ========================================================================== */
+
+#hud-container {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+#hud {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--hud-bg);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--hud-border);
+  border-radius: var(--border-radius-main);
+  box-shadow: var(--hud-shadow);
+  pointer-events: auto;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
+}
+
+.hud-handle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: grab;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+.hud-handle:active {
+  cursor: grabbing;
+}
+
+/* Earth Icon Badge in HUD */
+.earth-icon-hud {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 35% 35%, #2575A5 0%, #17547A 60%, #0D324D 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+.earth-icon-hud::before {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 9px;
+  background: #38A3A5;
+  border-radius: 40% 60% 70% 30%;
+  top: 5px;
+  left: 3px;
+}
+.earth-icon-hud::after {
+  content: '';
+  position: absolute;
+  width: 9px;
+  height: 10px;
+  background: #57CC99;
+  border-radius: 60% 40% 30% 70%;
+  bottom: 3px;
+  right: 4px;
+}
+
+.hud-title {
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: -0.2px;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.hud-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Clean, tactile buttons */
+.hud-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-family);
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-primary);
+  transition: all 0.15s ease;
+}
+
+.hud-btn:active {
+  transform: translateY(1px) scale(0.97);
+}
+
+.hud-btn.primary {
+  background: var(--text-primary);
+  color: var(--bg-canvas);
+  border-color: var(--text-primary);
+}
+body.theme-space .hud-btn.primary {
+  background: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+}
+.hud-btn.primary:hover {
+  filter: brightness(1.15);
+}
+
+.hud-btn.secondary {
+  background: var(--accent-soft);
+  border-color: var(--hud-border);
+  color: var(--text-primary);
+}
+.hud-btn.secondary:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+body.theme-space .hud-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Active tool state (e.g. Eraser) */
+.hud-btn.active {
+  background: #E63946 !important;
+  color: #fff !important;
+  border-color: #E63946 !important;
+}
+
+.hud-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text-secondary);
+}
+body.theme-space .hud-badge {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+}
+
+.hud-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--hud-border);
+  margin: 0 1px;
+}
+
+.hud-btn-mini {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.hud-btn-mini:hover {
+  background: var(--accent-soft);
+  color: var(--text-primary);
+}
+.hud-btn-mini.danger:hover {
+  background: #E63946;
+  color: #fff;
+}
+
+/* ==========================================================================
+   Drawers (Settings Panel & Notes Vault)
+   ========================================================================== */
+
+.settings-drawer {
+  width: 330px;
+  background: var(--settings-bg);
+  border: 1px solid var(--settings-border);
+  border-radius: var(--border-radius-main);
+  box-shadow: var(--hud-shadow);
+  backdrop-filter: blur(16px);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: auto;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              max-height 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              padding 0.2s ease;
+  transform-origin: top center;
+  max-height: 480px;
+  opacity: 1;
+  overflow: visible;
+  user-select: none;
+}
+
+.settings-drawer.collapsed {
+  opacity: 0;
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin: 0;
+  transform: translateY(-6px) scale(0.97);
+  pointer-events: none;
+  overflow: hidden;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--hud-border);
+}
+
+.settings-header-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.settings-close-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.settings-close-btn:hover {
+  background: var(--accent-soft);
+  color: var(--text-primary);
+}
+
+/* Vault Header Sync Status */
+.sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.sync-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2A9D8F;
+  transition: background 0.3s;
+}
+
+.sync-status.saving .sync-dot {
+  background: #E76F51;
+  animation: syncBlink 0.8s infinite alternate;
+}
+
+@keyframes syncBlink {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+
+/* Vault Content & Meta */
+.vault-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.vault-list-container {
+  display: flex;
+  flex-direction: column;
+  max-height: 280px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
+}
+
+/* Thin modern scrollbar */
+.vault-list-container::-webkit-scrollbar {
+  width: 4px;
+}
+.vault-list-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+body.theme-space .vault-list-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.vault-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vault-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--accent-soft);
+  border: 1px solid var(--hud-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.vault-item:hover {
+  border-color: var(--accent-color);
+  transform: translateX(2px);
+}
+
+.vault-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.vault-item-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vault-item-snippet {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vault-item-delete {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.vault-item-delete:hover {
+  background: rgba(230, 57, 70, 0.15);
+  color: #E63946;
+}
+
+.vault-empty {
+  padding: 24px 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Settings Items */
+.settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.settings-item.vertical {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.settings-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.settings-item-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.settings-item-desc {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.slider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.slider-val-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--accent-soft);
+  color: var(--text-primary);
+  border: 1px solid var(--hud-border);
+}
+
+/* Custom Range Slider */
+.custom-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.1);
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+body.theme-space .custom-slider {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.custom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s;
+}
+.custom-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Custom Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.14);
+  transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 22px;
+}
+body.theme-space .toggle-slider {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: var(--accent-color);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(16px);
+}
+
+/* ==========================================================================
+   Sticky Note Cards: Tactile Tangible Paper
+   ========================================================================== */
+
+#notes-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+.note-card {
+  position: absolute;
+  width: var(--note-base-width, 250px);
+  min-height: var(--note-base-height, 165px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--border-radius-card);
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  touch-action: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, width 0.15s ease, min-height 0.15s ease;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.note-card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+}
+
+.note-card.is-dragging {
+  cursor: grabbing !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18) !important;
+  z-index: 9999 !important;
+}
+
+/* Pulse Highlight when clicked from Vault */
+@keyframes noteHighlightPulse {
+  0% { box-shadow: 0 0 0 0px #388BFD; }
+  50% { box-shadow: 0 0 0 6px #388BFD, 0 8px 24px rgba(0,0,0,0.2); }
+  100% { box-shadow: 0 0 0 0px #388BFD; }
+}
+
+.note-card.highlight-pulse {
+  animation: noteHighlightPulse 1.2s ease-out;
+  z-index: 9998 !important;
+}
+
+/* Note Top Header */
+.note-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.02);
+  border-bottom: 1px solid var(--border-card);
+  cursor: grab;
+}
+body.theme-space .note-header {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.note-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.note-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s;
+  box-shadow: 0 0 4px currentColor;
+  flex-shrink: 0;
+}
+.note-dot:hover {
+  transform: scale(1.3);
+}
+
+/* Editable Note Title */
+.note-title-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 2px 4px;
+  border-radius: 4px;
+  width: 120px;
+  transition: background 0.15s, border-bottom-color 0.15s;
+  border-bottom: 1px solid transparent;
+  cursor: text;
+}
+.note-title-input:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+body.theme-space .note-title-input:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.note-title-input:focus {
+  background: rgba(0, 0, 0, 0.06);
+  border-bottom-color: var(--text-primary);
+}
+body.theme-space .note-title-input:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom-color: var(--accent-color);
+}
+
+.note-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.note-action-btn {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.15s;
+}
+.note-action-btn:hover {
+  background: var(--accent-soft);
+  color: var(--text-primary);
+}
+.note-action-btn.del-btn:hover {
+  background: rgba(230, 57, 70, 0.15);
+  color: #E63946;
+}
+
+/* Note Content Area */
+.note-body {
+  flex: 1;
+  padding: 8px 10px;
+  display: flex;
+}
+
+.note-textarea {
+  width: 100%;
+  height: 100%;
+  min-height: 85px;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: var(--font-family);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  pointer-events: auto;
+  cursor: text;
+}
+.note-textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* Telemetry for dark/space theme */
+.telemetry-badge {
+  display: none;
+  font-size: 9px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  color: var(--text-muted);
+  padding: 3px 8px;
+  border-top: 1px solid var(--border-card);
+  background: rgba(0, 0, 0, 0.15);
+}
+body.theme-space .telemetry-badge {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ==========================================================================
+   Muted Tactile Paper Color Presets (Light Theme)
+   ========================================================================== */
+
+body.theme-cute .note-card.color-pink {
+  border-color: #F8D7DA;
+  background: rgba(254, 245, 246, var(--card-opacity));
+}
+body.theme-cute .note-card.color-mint {
+  border-color: #D4EDDA;
+  background: rgba(244, 252, 246, var(--card-opacity));
+}
+body.theme-cute .note-card.color-lavender {
+  border-color: #E2D9F3;
+  background: rgba(248, 246, 254, var(--card-opacity));
+}
+body.theme-cute .note-card.color-cream {
+  border-color: #FFF3CD;
+  background: rgba(255, 253, 245, var(--card-opacity));
+}
+body.theme-cute .note-card.color-sky {
+  border-color: #D1ECF1;
+  background: rgba(244, 250, 253, var(--card-opacity));
+}
+
+/* ==========================================================================
+   Architectural Slate Color Presets (Dark Theme)
+   ========================================================================== */
+
+body.theme-space .note-card.color-pink {
+  border-color: #4A2830;
+  background: rgba(30, 22, 25, var(--card-opacity));
+}
+body.theme-space .note-card.color-mint {
+  border-color: #214030;
+  background: rgba(18, 28, 22, var(--card-opacity));
+}
+body.theme-space .note-card.color-lavender {
+  border-color: #3B2E4D;
+  background: rgba(26, 22, 33, var(--card-opacity));
+}
+body.theme-space .note-card.color-cream {
+  border-color: #4D4026;
+  background: rgba(31, 27, 20, var(--card-opacity));
+}
+body.theme-space .note-card.color-sky {
+  border-color: #243E54;
+  background: rgba(18, 27, 36, var(--card-opacity));
+}
+
+/* ==========================================================================
+   Eraser Tool (Delete Mode) Visual Cues
+   ========================================================================== */
+
+body.eraser-mode-active,
+body.eraser-mode-active #viewport {
+  cursor: crosshair !important;
+}
+
+body.eraser-mode-active .note-card {
+  cursor: crosshair !important;
+}
+
+body.eraser-mode-active .note-card:hover {
+  border-color: #E63946 !important;
+  box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.4), 0 8px 24px rgba(230, 57, 70, 0.2) !important;
+  transform: scale(1.02);
+}
+
+body.eraser-mode-active .note-card:hover::after {
+  content: 'CLICK TO ERASE';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(230, 57, 70, 0.9);
+  color: white;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 10001;
+}

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zero-G Notes</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-cute">
+  <div id="viewport">
+    <!-- Floating HUD Container -->
+    <div id="hud-container">
+      <aside id="hud" class="interactive-hud" title="Drag to reposition HUD">
+        <div class="hud-handle" id="hud-drag-handle">
+          <div class="earth-icon-hud" id="earth-badge">
+            <div class="earth-glow"></div>
+            <div class="earth-body"></div>
+          </div>
+          <span class="hud-title">Zero-G Notes</span>
+        </div>
+
+        <div class="hud-actions">
+          <button id="btn-add-note" class="hud-btn primary" title="Add new floating note">
+            <span class="btn-icon">＋</span>
+            <span class="btn-label">Note</span>
+          </button>
+
+          <button id="btn-tool-eraser" class="hud-btn secondary" title="Eraser Tool: Click notes to vaporize them">
+            <span class="btn-icon">🧹</span>
+            <span class="btn-label">Eraser</span>
+          </button>
+
+          <button id="btn-open-vault" class="hud-btn secondary" title="Saved Notes Vault & List Manager">
+            <span class="btn-icon">📁</span>
+            <span class="btn-label">Vault</span>
+            <span class="hud-badge" id="vault-count-badge">0</span>
+          </button>
+
+          <button id="btn-zero-g-impulse" class="hud-btn secondary" title="Apply cosmic drift impulse">
+            <span class="btn-icon">🚀</span>
+            <span class="btn-label">Impulse</span>
+          </button>
+
+          <button id="btn-toggle-theme" class="hud-btn theme-toggle" title="Toggle theme (Ctrl + T)">
+            <span class="theme-icon" id="theme-indicator-icon">🌸</span>
+            <span class="btn-label" id="theme-indicator-label">Cute</span>
+          </button>
+
+          <button id="btn-toggle-settings" class="hud-btn secondary" title="Settings (Gravity, Opacity, Size)">
+            <span class="btn-icon">⚙️</span>
+            <span class="btn-label">Settings</span>
+          </button>
+
+          <div class="hud-divider"></div>
+
+          <button id="btn-minimize" class="hud-btn-mini" title="Minimize overlay">_</button>
+          <button id="btn-close" class="hud-btn-mini danger" title="Close application">✕</button>
+        </div>
+      </aside>
+
+      <!-- Collapsible Settings Panel -->
+      <div id="settings-panel" class="settings-drawer collapsed">
+        <div class="settings-header">
+          <div class="settings-header-title">
+            <span class="settings-icon">⚙️</span>
+            <span class="settings-title">Control Panel</span>
+          </div>
+          <button id="btn-close-settings" class="settings-close-btn" title="Close Settings">✕</button>
+        </div>
+
+        <div class="settings-content">
+          <!-- Gravity Toggle -->
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-title">Earth Gravity</span>
+              <span class="settings-item-desc">Fall & stack on floor boundary</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-gravity">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <!-- Note Opacity Slider -->
+          <div class="settings-item vertical">
+            <div class="slider-header">
+              <span class="settings-item-title">Note Opacity</span>
+              <span class="slider-val-badge" id="val-opacity">92%</span>
+            </div>
+            <input type="range" id="slider-opacity" min="20" max="100" value="92" class="custom-slider">
+          </div>
+
+          <!-- Note Size Scale Slider -->
+          <div class="settings-item vertical">
+            <div class="slider-header">
+              <span class="settings-item-title">Note Scale</span>
+              <span class="slider-val-badge" id="val-size">1.0x</span>
+            </div>
+            <input type="range" id="slider-size" min="0.8" max="1.5" step="0.05" value="1.0" class="custom-slider">
+          </div>
+        </div>
+      </div>
+
+      <!-- Saved Notes Vault Drawer -->
+      <div id="vault-drawer" class="settings-drawer vault-drawer collapsed">
+        <div class="settings-header">
+          <div class="settings-header-title">
+            <span class="settings-icon">📁</span>
+            <span class="settings-title">Notes Vault</span>
+          </div>
+          <div class="sync-status" id="sync-status-indicator" title="Storage sync status">
+            <span class="sync-dot"></span>
+            <span class="sync-text" id="sync-status-text">All changes saved</span>
+          </div>
+          <button id="btn-close-vault" class="settings-close-btn" title="Close Vault">✕</button>
+        </div>
+
+        <div class="vault-meta">
+          <span class="vault-count-label" id="vault-meta-count">0 Notes Floating</span>
+        </div>
+
+        <div class="vault-list-container">
+          <div class="vault-list" id="vault-list"></div>
+          <div class="vault-empty" id="vault-empty" style="display: none;">
+            No active notes floating. Click <strong>＋ Note</strong> to create one.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas for physics boundary / debug visualization if needed -->
+    <div id="notes-container"></div>
+  </div>
+
+  <script src="matter.min.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

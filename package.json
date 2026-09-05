@@ -1,0 +1,51 @@
+{
+  "name": "zero-g-notes",
+  "version": "1.0.0",
+  "description": "Zero-G Notes - Floating sticky notes with zero-gravity physics and dynamic click-through",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "generate-icons": "electron scripts/generate-icons.js",
+    "build": "electron-builder --win",
+    "build:dir": "electron-builder --win --dir",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "keywords": [
+    "electron",
+    "matter-js",
+    "physics",
+    "sticky-notes",
+    "overlay",
+    "desktop"
+  ],
+  "author": "Zero-G Notes Team",
+  "license": "MIT",
+  "dependencies": {
+    "matter-js": "^0.20.0"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.zerognotes.app",
+    "productName": "Zero-G Notes",
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "asar": true
+  }
+}
