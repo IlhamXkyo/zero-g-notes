@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, screen, globalShortcut } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const fsPromises = require('fs').promises;
 
 // Windows transparency visual tweaks
 app.commandLine.appendSwitch('disable-color-correct-rendering');
@@ -9,22 +10,29 @@ app.commandLine.appendSwitch('enable-transparent-visuals');
 let mainWindow = null;
 
 const dataFilePath = path.join(app.getPath('userData'), 'notes-data.json');
+const tempFilePath = dataFilePath + '.tmp';
 
-function loadNotesData() {
+async function loadNotesData() {
   try {
-    if (fs.existsSync(dataFilePath)) {
-      const data = fs.readFileSync(dataFilePath, 'utf-8');
-      return JSON.parse(data);
+    try {
+      await fsPromises.access(dataFilePath);
+    } catch {
+      return null;
     }
+    const data = await fsPromises.readFile(dataFilePath, 'utf-8');
+    return JSON.parse(data);
   } catch (err) {
     console.error('Error reading notes data:', err);
+    return null;
   }
-  return null;
 }
 
-function saveNotesData(data) {
+async function saveNotesData(data) {
   try {
-    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), 'utf-8');
+    const jsonString = JSON.stringify(data, null, 2);
+    // Atomic write pattern: write to temp file first, then rename
+    await fsPromises.writeFile(tempFilePath, jsonString, 'utf-8');
+    await fsPromises.rename(tempFilePath, dataFilePath);
     return true;
   } catch (err) {
     console.error('Error saving notes data:', err);
