@@ -120,6 +120,9 @@ body.theme-space {
   cursor: grab;
   padding: 4px 6px;
   border-radius: 6px;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .hud-handle:active {
   cursor: grabbing;
@@ -676,6 +679,12 @@ body.theme-space .toggle-slider {
   background: rgba(0, 0, 0, 0.02);
   border-bottom: 1px solid var(--border-card);
   cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.note-card.is-dragging .note-header {
+  cursor: grabbing;
 }
 body.theme-space .note-header {
   background: rgba(255, 255, 255, 0.03);

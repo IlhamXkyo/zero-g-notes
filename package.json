@@ -5,6 +5,8 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
+    "test": "node scripts/test-integrity.js",
+    "package": "electron-builder --win",
     "generate-icons": "electron scripts/generate-icons.js",
     "build": "electron-builder --win",
     "build:dir": "electron-builder --win --dir",

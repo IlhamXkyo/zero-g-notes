@@ -10,5 +10,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   closeApp: () => ipcRenderer.send('close-app'),
   onToggleThemeShortcut: (callback) => {
     ipcRenderer.on('toggle-theme-shortcut', () => callback());
+  },
+  onToggleGravityShortcut: (callback) => {
+    ipcRenderer.on('toggle-gravity-shortcut', () => callback());
+  },
+  onAddNoteShortcut: (callback) => {
+    ipcRenderer.on('add-note-shortcut', () => callback());
   }
 });

@@ -35,6 +35,11 @@ Notes exist as interactive rigid bodies on the screen. In zero-gravity mode, not
    npm start
    ```
 
+4. Run automated test suite:
+   ```bash
+   npm test
+   ```
+
 To package the application for Windows:
 ```bash
 npm run package
@@ -44,8 +49,11 @@ npm run package
 
 - **Drag Note**: Click and hold a note header to reposition or fling across the screen.
 - **Toggle Gravity**: Press the gravity icon in the toolbar or use `Ctrl + G`.
-- **New Note**: Click the plus button or press `Ctrl + N`.
-- **Delete Note**: Click the close icon on the top right of each card.
+- **New Note**: Click the plus button in the toolbar or use `Ctrl + N`.
+- **Toggle Theme**: Click the theme button in the toolbar or use `Ctrl + T`.
+- **Delete Note**: Click the close icon on the top right of each card, or use the Eraser tool.
+- **Eraser Mode**: Toggle the eraser tool in the toolbar to click and vaporize notes (`Esc` to cancel).
+- **Vault Manager**: Open the vault drawer in the toolbar to search, jump to, or inspect floating notes.
 
 ## Tech Stack
 

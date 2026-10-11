@@ -17,6 +17,9 @@
   const themeIndicatorIcon = document.getElementById('theme-indicator-icon');
   const themeIndicatorLabel = document.getElementById('theme-indicator-label');
   const btnZeroGImpulse = document.getElementById('btn-zero-g-impulse');
+  const btnToggleGravity = document.getElementById('btn-toggle-gravity');
+  const hudGravityIcon = document.getElementById('hud-gravity-icon');
+  const hudGravityLabel = document.getElementById('hud-gravity-label');
   const btnToggleSettings = document.getElementById('btn-toggle-settings');
   const settingsPanel = document.getElementById('settings-panel');
   const btnCloseSettings = document.getElementById('btn-close-settings');
@@ -183,7 +186,10 @@
   // Gravity Mechanics
   function setGravity(enabled) {
     gravityEnabled = !!enabled;
-    toggleGravity.checked = gravityEnabled;
+    if (toggleGravity) toggleGravity.checked = gravityEnabled;
+    if (hudGravityIcon) hudGravityIcon.textContent = gravityEnabled ? '🌍' : '🪐';
+    if (hudGravityLabel) hudGravityLabel.textContent = gravityEnabled ? 'Earth' : 'Zero-G';
+    if (btnToggleGravity) btnToggleGravity.classList.toggle('active', gravityEnabled);
 
     if (gravityEnabled) {
       engine.gravity.y = 1.0;
@@ -204,8 +210,58 @@
     triggerSave();
   }
 
-  toggleGravity.addEventListener('change', (e) => {
-    setGravity(e.target.checked);
+  function toggleGravityState() {
+    setGravity(!gravityEnabled);
+  }
+
+  if (btnToggleGravity) {
+    btnToggleGravity.addEventListener('click', () => {
+      toggleGravityState();
+    });
+  }
+
+  if (toggleGravity) {
+    toggleGravity.addEventListener('change', (e) => {
+      setGravity(e.target.checked);
+    });
+  }
+
+  // Keyboard Shortcuts (IPC from main process + in-window listener)
+  if (window.electronAPI) {
+    if (window.electronAPI.onToggleGravityShortcut) {
+      window.electronAPI.onToggleGravityShortcut(() => {
+        toggleGravityState();
+      });
+    }
+    if (window.electronAPI.onAddNoteShortcut) {
+      window.electronAPI.onAddNoteShortcut(() => {
+        createNote();
+      });
+    }
+  }
+
+  window.addEventListener('keydown', (e) => {
+    const isCtrl = e.ctrlKey || e.metaKey;
+    if (isCtrl && e.key.toLowerCase() === 'g') {
+      e.preventDefault();
+      toggleGravityState();
+    } else if (isCtrl && e.key.toLowerCase() === 'n') {
+      e.preventDefault();
+      createNote();
+    } else if (isCtrl && e.key.toLowerCase() === 't') {
+      e.preventDefault();
+      toggleTheme();
+    } else if (e.key === 'Escape') {
+      if (eraserModeActive) {
+        setEraserMode(false);
+      }
+      if (settingsPanel && !settingsPanel.classList.contains('collapsed')) {
+        settingsPanel.classList.add('collapsed');
+      }
+      if (vaultDrawer && !vaultDrawer.classList.contains('collapsed')) {
+        vaultDrawer.classList.add('collapsed');
+      }
+    }
   });
 
   // Opacity Slider (20% to 100%)
@@ -341,11 +397,12 @@
   function createNote({ id, title, x, y, text = '', colorIndex = 0, vx, vy, angle = 0, createdAt } = {}) {
     const noteId = id || 'note_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
     const noteTitle = title || getNextDefaultTitle();
-    const spawnX = x !== undefined ? x : Math.max(160, Math.min(window.innerWidth - 160, window.innerWidth / 2 + (Math.random() - 0.5) * 400));
-    const spawnY = y !== undefined ? y : Math.max(160, Math.min(window.innerHeight - 200, window.innerHeight / 2 + (Math.random() - 0.5) * 300));
+    const spawnX = (x !== undefined && Number.isFinite(x)) ? x : Math.max(160, Math.min(window.innerWidth - 160, window.innerWidth / 2 + (Math.random() - 0.5) * 400));
+    const spawnY = (y !== undefined && Number.isFinite(y)) ? y : Math.max(160, Math.min(window.innerHeight - 200, window.innerHeight / 2 + (Math.random() - 0.5) * 300));
 
     const noteW = BASE_WIDTH * currentScale;
     const noteH = BASE_HEIGHT * currentScale;
+    const safeAngle = (angle !== undefined && Number.isFinite(angle)) ? angle : (Math.random() - 0.5) * 0.1;
 
     // Create Matter.js physics body
     const body = Bodies.rectangle(spawnX, spawnY, noteW, noteH, {
@@ -354,12 +411,12 @@
       friction: 0.1,
       frictionStatic: 0.2,
       density: 0.001,
-      angle: angle || (Math.random() - 0.5) * 0.1
+      angle: safeAngle
     });
 
     // Random initial drift vector if not restored
-    const initVx = vx !== undefined ? vx : (Math.random() - 0.5) * 1.5;
-    const initVy = vy !== undefined ? vy : (Math.random() - 0.5) * 1.5;
+    const initVx = (vx !== undefined && Number.isFinite(vx)) ? vx : (Math.random() - 0.5) * 1.5;
+    const initVy = (vy !== undefined && Number.isFinite(vy)) ? vy : (Math.random() - 0.5) * 1.5;
     Body.setVelocity(body, { x: initVx, y: initVy });
     Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.008);
 
@@ -454,10 +511,14 @@
     // Drag handling via pointer
     headerEl.addEventListener('pointerdown', (e) => {
       if (eraserModeActive) return; // In eraser mode, header clicks delete rather than drag
+      if (e.button !== 0) return; // Primary pointer button only (modern web guidance)
       if (e.target === titleInput || e.target === dotEl || e.target === delBtn) return;
       e.preventDefault();
       noteObj.isDragging = true;
       cardEl.classList.add('is-dragging');
+
+      // Temporarily freeze body dynamics during direct cursor manipulation
+      Body.setStatic(body, true);
 
       noteObj.dragOffset = {
         x: body.position.x - e.clientX,
@@ -466,8 +527,6 @@
       noteObj.lastPointerPos = { x: e.clientX, y: e.clientY };
       noteObj.lastPointerTime = performance.now();
       noteObj.dragVelocity = { x: 0, y: 0 };
-
-      Body.setAngularVelocity(body, 0);
 
       const onPointerMove = (moveEvt) => {
         if (!noteObj.isDragging) return;
@@ -484,7 +543,6 @@
         noteObj.lastPointerTime = now;
 
         Body.setPosition(body, { x: currentTargetX, y: currentTargetY });
-        Body.setVelocity(body, { x: 0, y: 0 });
       };
 
       const onPointerUp = () => {
@@ -494,6 +552,9 @@
 
         window.removeEventListener('pointermove', onPointerMove);
         window.removeEventListener('pointerup', onPointerUp);
+
+        // Restore dynamic rigid body and transfer fling momentum
+        Body.setStatic(body, false);
 
         const tossX = Math.max(-12, Math.min(12, noteObj.dragVelocity.x * 0.9));
         const tossY = Math.max(-12, Math.min(12, noteObj.dragVelocity.y * 0.9));
@@ -649,11 +710,11 @@
         title: n.title,
         text: n.text,
         colorIndex: n.colorIndex,
-        x: n.body.position.x,
-        y: n.body.position.y,
-        vx: n.body.velocity.x,
-        vy: n.body.velocity.y,
-        angle: n.body.angle,
+        x: Number.isFinite(n.body.position.x) ? n.body.position.x : 300,
+        y: Number.isFinite(n.body.position.y) ? n.body.position.y : 300,
+        vx: Number.isFinite(n.body.velocity.x) ? n.body.velocity.x : 0,
+        vy: Number.isFinite(n.body.velocity.y) ? n.body.velocity.y : 0,
+        angle: Number.isFinite(n.body.angle) ? n.body.angle : 0,
         createdAt: n.createdAt
       });
     });
@@ -756,7 +817,15 @@
       }
       if (py > window.innerHeight - halfH - pad) {
         Body.setPosition(body, { x: px, y: window.innerHeight - halfH - pad });
-        Body.setVelocity(body, { x: body.velocity.x, y: -Math.abs(body.velocity.y) * 0.8 });
+        if (gravityEnabled) {
+          if (Math.abs(body.velocity.y) < 0.6) {
+            Body.setVelocity(body, { x: body.velocity.x * 0.9, y: 0 });
+          } else {
+            Body.setVelocity(body, { x: body.velocity.x, y: -Math.abs(body.velocity.y) * 0.25 });
+          }
+        } else {
+          Body.setVelocity(body, { x: body.velocity.x, y: -Math.abs(body.velocity.y) * 0.8 });
+        }
       }
 
       const screenX = body.position.x - halfW;

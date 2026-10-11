@@ -125,6 +125,20 @@ app.whenReady().then(() => {
     }
   });
 
+  // Register shortcut Ctrl+G to toggle gravity
+  globalShortcut.register('CommandOrControl+G', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('toggle-gravity-shortcut');
+    }
+  });
+
+  // Register shortcut Ctrl+N to add new note
+  globalShortcut.register('CommandOrControl+N', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('add-note-shortcut');
+    }
+  });
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
